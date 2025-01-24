@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طالبي المجهول</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            background-color: #f4f4f9;
+            background-image: url('file:///C:/Users/pc/Downloads/%D8%B7%D8%A7%D9%84%D8%A8%D9%8A%20%D8%A7%D9%84%D9%85%D8%AC%D9%87%D9%88%D9%84%20%20(10).jpg'); 
+            background-size: cover;
+            background-position: 10% -120px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            height: 100vh;
+        }
+        .container {
+            background-color: rgba(196, 196, 196, 0.8); 
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            max-width: 500px;
+            text-align: center;
+            margin: auto;
+        }
+        .container2 {
+            background-color: rgba(196, 196, 196, 0.8); 
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 50%;
+            max-width: 150px;
+            text-align: center;
+            margin-left: -150px;
+            position:absolute;
+            top: 15%;
+        }
+        .title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .message-box {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: none;
+        }
+        .submit-btn {
+            display: block;
+            width: 50%;
+            padding: 10px;
+            margin: 20px auto;
+            background-color: #4c87af;
+            color: white;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+        .teacherInfo {
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container2" id="teacherInfo">
+    <div class="title">بيانات المعلم</div>
+    <p id="teacherName"></p>
+    <p id="specialization"></p>
+</div>
+
+<div class="container">
+    <div class="title">مرحبًا طالبي المجهول</div>
+    <p>يمكنك كتابة رسالتك هنا وستصل إلى المعلم بشكل مجهول:</p>
+    
+    <textarea class="message-box" id="message-box" placeholder="اكتب رسالتك هنا..."></textarea>
+    
+    <button class="submit-btn" onclick="confirmSendMessage()">إرسال الرسالة</button>
+
+    <script>
+        // دالة لحفظ الرسائل في الكوكيز
+        function saveCookie(name, value) {
+            const expirationDate = new Date();
+            expirationDate.setFullYear(expirationDate.getFullYear() + 1); // الكوكيز تبقى لمدة سنة
+            document.cookie = name + "=" + JSON.stringify(value) + "; expires=" + expirationDate.toUTCString() + "; path=/";
+        }
+
+        // دالة لاسترجاع الكوكيز
+        function getCookieValue(name) {
+            var nameEq = name + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(nameEq) == 0) {
+                    return JSON.parse(c.substring(nameEq.length, c.length));
+                }
+            }
+            return [];
+        }
+
+       // دالة لتأكيد إرسال الرسالة
+        function confirmSendMessage() {
+            var userMessage = document.getElementById('message-box').value;
+            
+           // التأكد من وجود رسالة
+            if (userMessage.trim() === "") {
+                alert("يرجى كتابة رسالة.");
+                return;
+            }
+            
+            var userResponse = confirm('هل أنت متأكد من إرسال الرسالة؟');
+            if (userResponse) {
+              // تخزين الرسالة في الكوكيز
+                storeMessage(userMessage);
+                
+               // توجيه المستخدم إلى صفحة تأكيد الإرسال
+                window.location.href = "Confirm sending.html";  // توجيه إلى صفحة تأكيد الإرسال
+            } else {
+                alert('تم إلغاء الإرسال.');
+            }
+        }
+
+        // دالة لحفظ الرسائل في الكوكيز
+        function storeMessage(messageText) {
+            var messages = getCookieValue("messagesList");
+            messages.push({ text: messageText, favorite: false });
+            saveCookie("messagesList", messages);
+        }
+
+       // دالة لاسترجاع بيانات المعلم من الكوكيز
+        function getCookies() {
+            var cookies = document.cookie.split(';');
+            var name = '';
+            var specialization = '';
+            
+            cookies.forEach(function(cookie) {
+                var [key, value] = cookie.split('=');
+                if (key.trim() === 'teacherName') {
+                    name = value;
+                }
+                if (key.trim() === 'specialization') {
+                    specialization = value;
+                }
+            });
+
+            if (name && specialization) {
+                return { name: name, specialization: specialization };
+            } else {
+                return null; // إذا لم توجد بيانات
+            }
+        }
+
+        // دالة لعرض بيانات المعلم عند تحميل الصفحة
+        function displayTeacherInfo() {
+            var teacherData = getCookies();
+            if (teacherData) {
+                document.getElementById("teacherName").innerHTML = "اسم المعلم: " + teacherData.name;
+                document.getElementById("specialization").innerHTML = "التخصص: " + teacherData.specialization;
+            } else {
+                document.getElementById("teacherName").innerHTML = "لا توجد بيانات للمعلم.";
+                document.getElementById("specialization").innerHTML = "";
+            }
+        }
+
+       // استدعاء دالة عرض بيانات المعلم عند تحميل الصفحة
+        window.onload = displayTeacherInfo;
+
+    </script>
+    
+</div>
+
+</body>
+</html>
